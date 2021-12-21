@@ -1,0 +1,32 @@
+key	値(全項目埋めること)	説明	例
+number_of_authors		著者人数	8
+submitter1		"著者名(""苗字,名前の頭文字.""のスタイル。スペースは入れない)"	"Kobayashi,Y."
+submitter2		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Shibata,T."
+submitter3		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Hirakawa,H."
+submitter4		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Shigenobu,S."
+submitter5		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Nishiyama,T."
+submitter6		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Yamada,A."
+submitter7		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Hasebe,M."
+submitter8		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Kawaguchi,M."
+contact_person		登録者(フルネームで記載)	Yuuki Kobayashi
+email		登録者メールアドレス	kobayasi@nibb.ac.jp
+phone		電話番号	81-564-55-7690
+institute		組織	National Institute for Basic Biology
+department		部署	Laboratory of Evolutionary Genomics
+country		国	Japan
+state		県	Aichi
+city		市町村	Okazaki
+street		以下アドレス	"Nishigonaka 38, Myodaiji"
+zip		郵便番号	444-8585
+reference		論文タイトル	Whole genome analysis of termite symbiotic fungi
+year		出版年	2022
+status		論文状況	Unpublished
+hold_date		データ公開予定日	20240401
+species_name		生物種名	Trypoxylus dichotomus 
+transl_table		使用するコドン表。種によって違うので注意。	1
+assembly_method		アセンブリに使用したソフト名とバージョン	SuperNova
+assembly_name		アセンブリの名前。	LsAT787v3
+genome_coverage		配列決定の際のシーケンス深度	50
+sequencing_technology		使用したシーケンサー	Illumina HiSeqX
+locus_tag_prefix		Biosampleで取得した、Locus tagのprefix	TryDic
+locus_tag_shared		locus_tagの付け方。0なら数字にprefixをそのまま付加、1ならprefixの後、数字の前にmitの文字を付ける(同じlocus_tag_prefixを核ゲノムと共有する場合など)	1
