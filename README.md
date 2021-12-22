@@ -1,6 +1,7 @@
 # DDBJ_submission_converter
-Scripts to convert genome and annotation data into DDBJ submission files
-ゲノム塩基配列データと遺伝子アノテーションのデータから、DDBJに登録する形式のファイルに変換するためのスクリプト群。
+Scripts to convert genome and annotation data into DDBJ submission files  
+ゲノム塩基配列データと遺伝子アノテーションのデータから、DDBJに登録する形式のファイルに変換するためのスクリプト群。  
+真核生物用、原核生物用、ミトコンドリア用に分かれています。
 
 入力元ファイルとして、  
 ・ゲノムの塩基配列が記されたfastaファイル  
@@ -13,7 +14,7 @@ DDBJの登録に必要な配列ファイルとアノテーションファイル�
 ・真核生物はAugustus系列(BRAKERもAugustus依存)  
 ・原核生物はProkka  
 ・ミトコンドリアゲノムはMITOS  
-でgffファイルを作成したと想定して、真核生物用、原核生物用、ミトコンドリア用に分かれています。
+でgffファイルを作成したと想定しています。
 
 ○依存ツール  
 ・Python3  
