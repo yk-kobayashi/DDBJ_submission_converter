@@ -1,4 +1,4 @@
-# DDBJに登録するためのアノテーションファイル作成スクリプト(真核生物版、AugustusベースのGFFを想定)
+# DDBJに登録するためのアノテーションファイル作成スクリプト(真核生物版、AugustusベースのGFFを想定) version 1.01 (2021.12.23)
 # 入力ファイルとして、
 # 1.著者や論文、生物種などの情報を記述したtsvファイル(Excelフォームに入力してtsv変換する)
 # 2.ゲノムのfastaファイルをtab形式に変換したもの(元のfastaファイルにseqkit fx2tabを使用すれば良い)
@@ -124,10 +124,10 @@ for contig in sequence:
                     currentannot = linecache.getline(f4_func, annotline+1)
                     annotcontent = currentannot.split('\t')
                     if (annotcontent[0] == transcriptid):
-                        if annotcontent[name_column] != "-":
+                        if annotcontent[name_column] != "-" and annotcontent[name_column] != "-\n" and annotcontent[name_column] != "" and annotcontent[name_column] != "\n":
                             annotcontent[name_column] = annotcontent[name_column].replace("\n","")  #対象列が末尾の場合、改行コードが入るのを防ぐ
                             genename = annotcontent[name_column]
-                        if annotcontent[function_column] != "-":
+                        if annotcontent[function_column] != "-" and annotcontent[function_column] != "-\n" and annotcontent[name_column] != "" and annotcontent[name_column] != "\n":
                             annotcontent[function_column] = annotcontent[function_column].replace("\n","")  #対象列が末尾の場合、改行コードが入るのを防ぐ
                             annotcontent[function_column] = annotcontent[function_column].replace("  "," ")  #functional annotationの記述に連続スペースが入っている場合があるので、これも除く
                             product = annotcontent[function_column]+", putative"
