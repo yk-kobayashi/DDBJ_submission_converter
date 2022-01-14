@@ -6,7 +6,7 @@ Scripts to convert genome and annotation data into DDBJ submission files
 入力元ファイルとして、  
 ・ゲノムの塩基配列が記されたfastaファイル  
 ・遺伝子領域のアノテーションされたgffファイル  
-・遺伝子機能をアノテーションしたcsvファイル(EggNOG mapperの結果のtableそのままでOK。ミトコンドリアゲノムの場合は不要)  
+・遺伝子機能をアノテーションしたcsvファイル(EggNOG mapperの結果のtableなど。ミトコンドリアゲノムの場合は不要)  
 と、基本情報をExcelで記入したtsvファイルを使用し、  
 DDBJの登録に必要な配列ファイルとアノテーションファイルを出力します。
 
