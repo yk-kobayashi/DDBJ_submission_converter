@@ -115,7 +115,7 @@ for contig in sequence:
                 featuretype = "gap"
                 transcriptid, locustag = "", ""
                 print("\tassembly_gap\t" + gffcontent[3] + ".." + gffcontent[4] + "\testimated_length\tknown")
-                print("\t\t\tgap_type\tunknown")
+                print("\t\t\tgap_type\twithin scaffold")
                 print("\t\t\tlinkage_evidence\tunspecified")
             if gffcontent[2] == "rRNA" or gffcontent[2] == "tRNA": #rRNAとtRNAの場合。Augustusではそもそも書き出さないので、元のGFFの記述にlocus_tagが入っていない独立ナンバリングと考えて扱う
                 featuretype = "noncoding"
@@ -133,7 +133,7 @@ for contig in sequence:
                 locustag = gffcontent[8]
                 transcriptid = ""
                 transcriptrange, transcriptlength, transcriptnames, transcriptproducts, codonstartlist, transcriptnotes = [], [], [], [], [], []
-            if gffcontent[2] == "transcript": #transcriptの開始。機能を確認し、transcript情報を初期化。
+            if gffcontent[2] == "transcript": #transcriptの開始。機能を確認し、エキソン情報を初期化。
                 transcriptid = gffcontent[8]
                 genename, product, genenote = "", "hypothetical protein", ""
                 for annotline in range(annotcount):
@@ -143,13 +143,31 @@ for contig in sequence:
                         if annotcontent[name_column] != "-" and annotcontent[name_column] != "-\n" and annotcontent[name_column] != "" and annotcontent[name_column] != "\n":
                             annotcontent[name_column] = annotcontent[name_column].replace("\n","")  #対象列が末尾の場合、改行コードが入るのを防ぐ
                             genename = annotcontent[name_column]
-                        if annotcontent[function_column] != "-" and annotcontent[function_column] != "-\n" and annotcontent[name_column] != "" and annotcontent[name_column] != "\n":
-                            annotcontent[function_column] = annotcontent[function_column].replace("\n","")  #対象列が末尾の場合、改行コードが入るのを防ぐ
-                            annotcontent[function_column] = annotcontent[function_column].replace("  "," ")  #functional annotationの記述に連続スペースが入っている場合があるので、これも除く
-                            if "involved in" in annotcontent[function_column] or "Belongs to" in annotcontent[function_column]:
-                                genenote = annotcontent[function_column]
+                        if annotcontent[function_column] != "-" and annotcontent[function_column] != "-\n" and annotcontent[function_column] != "" and annotcontent[function_column] != "\n":
+                            annotfunction = annotcontent[function_column].replace("\n","")  #対象列が末尾の場合、改行コードが入るのを防ぐ
+                            annotfunction = annotfunction.replace("  "," ")  #functional annotationの記述に連続スペースが入っている場合があるので、これも除く
+                            if annotfunction[0].isupper() and annotfunction[1].islower(): #略語等以外の先頭大文字を小文字に変換する。略号等かどうかは2文字めが英字小文字かどうかで判定
+                                annotfunction = annotfunction[0].lower() + annotfunction[1:]
+                            if "belongs to" in annotfunction: #機能アノテーションの中に分子種の記述以外の説明が混在していた場合の対応。機能アノテーションを実施したツールによって変える必要があるかも
+                                genenote = annotfunction
+                            elif "binding. It is involved in" in annotfunction:
+                                annotdetail = annotfunction.split("binding. ")
+                                if annotdetail[0] != "":
+                                    product = "putative " + annotdetail[0] + "binding protein"
+                                genenote = annotdetail[1]
+                            elif "activity. It is involved in" in annotfunction:
+                                annotdetail = annotfunction.split("activity. ")
+                                if annotdetail[0] != "":
+                                    product = "putative " + annotdetail[0]
+                                genenote = annotdetail[1]
+                            elif ". " in annotfunction:
+                                annotdetail = annotfunction.split(". ")
+                                product = "putative " + annotdetail[0]
+                                genenote = annotdetail[1]
+                            elif "involved in" in annotfunction:
+                                genenote = annotfunction
                             else:
-                                product = "putative " + annotcontent[function_column]
+                                product = "putative " + annotfunction
                 transcriptnames = transcriptnames + [genename]
                 transcriptproducts = transcriptproducts + [product]
                 transcriptnotes = transcriptnotes + [genenote]
