@@ -1,7 +1,10 @@
-key	値(全項目埋めること)	説明	例
+key	値(余剰の著者以外、全項目必須)	説明	例
+bioprojectID		対応するBioProject ID	PRJDB12657
+biosampleID		対応するBioSample ID	SAMD00428040
+sequenceReadArchive		対応するSequnce read archive (DRA/ERA/SRA)	DRR332795
 number_of_authors		著者人数	8
 submitter1		"著者名(""苗字,名前の頭文字.""のスタイル。スペースは入れない)"	"Kobayashi,Y."
-submitter2		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Shibata,T."
+submitter2		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Shibata,F.T."
 submitter3		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Hirakawa,H."
 submitter4		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Shigenobu,S."
 submitter5		著者名。行が足りなければ行を増やし、余れば行を減らして良い	"Nishiyama,T."
@@ -23,10 +26,13 @@ year		出版年	2022
 status		論文状況	Unpublished
 hold_date		データ公開予定日	20240401
 species_name		生物種名	Trypoxylus dichotomus 
-transl_table		使用するコドン表。種によって違うので注意。	1
-assembly_method		アセンブリに使用したソフト名とバージョン	SuperNova
+strain_or_isolate		系統(strain)あるいはサンプル(isolate)名。(strainあるいはisolate)=(系統・サンプル名)の形で記述	strain=AT787
+transl_table		使用するコドン表。種によって違うので注意。	5
+assembly_method		アセンブリに使用したソフト名とバージョン	Supernova v. 2.1.0
 assembly_name		アセンブリの名前。	LsAT787v3
-genome_coverage		配列決定の際のシーケンス深度	50
+genome_coverage		配列決定の際のシーケンス深度	50x
 sequencing_technology		使用したシーケンサー	Illumina HiSeqX
+contigname_numonly		コンティグ名が数値しか含んでいない場合はエントリ名を変更する必要があるので、yesと入力する	no
+circularseq		配列データが環状になっているか	yes
 locus_tag_prefix		Biosampleで取得した、Locus tagのprefix	TryDic
 locus_tag_shared		locus_tagの付け方。0なら数字にprefixをそのまま付加、1ならprefixの後、数字の前にmitの文字を付ける(同じlocus_tag_prefixを核ゲノムと共有する場合など)	1

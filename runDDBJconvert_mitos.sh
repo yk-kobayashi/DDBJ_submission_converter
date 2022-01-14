@@ -7,15 +7,15 @@ if [ $# != 3 ]; then
 fi
 
 #pre-processing for sequence and gff files
-mkdir DDBJfiletemp
-sed -e 's/\ .*//' $2 > DDBJfiletemp/renamedseq.fasta
-seqkit fx2tab DDBJfiletemp/renamedseq.fasta > DDBJfiletemp/renamedseq.tab
-seqkit locate -i -r -p '"N{10,}"' --gtf -P $2 > DDBJfiletemp/gaps.gtf
-cat DDBJfiletemp/gaps.gtf $3 > DDBJfiletemp/annot_pre.gff
+mkdir DDBJfileMittemp
+sed -e 's/\ .*//' $2 > DDBJfileMittemp/renamedseq.fasta
+seqkit fx2tab DDBJfileMittemp/renamedseq.fasta > DDBJfileMittemp/renamedseq.tab
+seqkit locate -i -r -p '"N{10,}"' --gtf -P $2 > DDBJfileMittemp/gaps.gtf
+cat DDBJfileMittemp/gaps.gtf $3 > DDBJfileMittemp/annot_pre.gff
 
 #main scripts
-python3 DDBJconverter_mitos.py $1 DDBJfiletemp/renamedseq.tab DDBJfiletemp/annot_pre.gff > DDBJannotfile.txt
-python3 outputDDBJseqfile.py DDBJfiletemp/renamedseq.tab > DDBJseqfile.txt
+python3 DDBJconverter_mitos.py $1 DDBJfileMittemp/renamedseq.tab DDBJfileMittemp/annot_pre.gff > DDBJannotfile_mit.txt
+python3 outputDDBJseqfile.py $1 DDBJfileMittemp/renamedseq.tab > DDBJseqfile_mit.txt
 
 
 

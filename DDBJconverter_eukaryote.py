@@ -1,4 +1,4 @@
-# DDBJに登録するためのアノテーションファイル作成スクリプト(真核生物版、AugustusベースのGFFを想定) version 1.01 (2021.12.23)
+# DDBJに登録するためのアノテーションファイル作成スクリプト(真核生物版、AugustusベースのGFFを想定) version 1.10 (2022.1.14)
 # 入力ファイルとして、
 # 1.著者や論文、生物種などの情報を記述したtsvファイル(Excelフォームに入力してtsv変換する)
 # 2.ゲノムのfastaファイルをtab形式に変換したもの(元のfastaファイルにseqkit fx2tabを使用すれば良い)
@@ -27,8 +27,14 @@ with open(f1_general, "r", encoding="cp932") as general_info:
         general[generallinecontent[0]] = generallinecontent[1]
 
 # 一般情報を書き込む。Excelで入力したフォームは区切り文字の可能性のある文字を含むと""で囲まれるので、含みそうな項目は""を消す処理をする
+print("COMMON\tDATATYPE\t\ttype\tWGS")
+print("\tKEYWORD\t\tkeyword\tWGS")
+print("\t\t\tkeyword\t"+general["dataquality"])
+print("\tDBLINK\t\tproject\t"+general["bioprojectID"])
+print("\t\t\tbiosample\t"+general["biosampleID"])
+print("\t\t\tsequence read archive\t"+general["sequenceReadArchive"])
 num_authors = int(general["number_of_authors"])
-print("COMMON\tSUBMITTER\t\tab_name\t"+general["submitter1"].replace("\"",""))
+print("\tSUBMITTER\t\tab_name\t"+general["submitter1"].replace("\"",""))
 if num_authors > 1:
     for author in range(1, num_authors):
         authornum = "submitter" + str(author + 1)
@@ -51,6 +57,7 @@ if num_authors > 1:
         print("\t\t\tab_name\t" + general[authornum].replace("\"",""))
 print("\t\t\tyear\t"+general["year"])
 print("\t\t\tstatus\t"+general["status"])
+print("\tDATE\t\thold_date\t"+general["hold_date"])
 print("\tST_COMMENT\t\ttagset_id\tGenome-Assembly-Data")
 print("\t\t\tAssembly Method\t"+general["assembly_method"].replace("\"",""))
 print("\t\t\tAssembly Name\t"+general["assembly_name"].replace("\"",""))
@@ -59,9 +66,13 @@ print("\t\t\tSequencing Technology\t"+general["sequencing_technology"].replace("
 
 # 一般情報ファイルをもとに、以下の記述に必要な情報を変数に入れておく
 speciesname = general["species_name"]
+strain = general["strain_or_isolate"].split("=")
 name_column = int(general["name_position"]) - 1
 function_column = int(general["function_position"]) - 1
 locusnum = 10
+contignameprefix = ""
+if general["contigname_numonly"] == "yes":
+    contignameprefix = "contig"
 
 # あらかじめGFFファイルとアノテーションファイルの行数を数えておく
 gff_for_count = open(f3_gff)
@@ -77,14 +88,17 @@ for countannotlines in annot_for_count:
 sequence = open(f2_seq)
 for contig in sequence:
     seqcontent = contig.split()
-    print(seqcontent[0] + "\tsource\t1.." + str(len(seqcontent[1])) + "\torganism\t" + speciesname)
+    print(contignameprefix + seqcontent[0] + "\tsource\t1.." + str(len(seqcontent[1])) + "\torganism\t" + speciesname)
+    print("\t\t\t" + strain[0] + "\t" + strain[1])
     print("\t\t\tmol_type\tgenomic DNA")
+    print("\t\t\tsubmitter_seqid\t@@[entry]@@")
+    print("\t\t\tff_definition\t@@[organism]@@ @@[" + strain[0] + "]@@ DNA, @@[submitter_seqid]@@")
 
 #　GFFファイルを1行ずつ確認しながらアノテーション情報を書き込んでいく
 #　なお、元のGFFファイルが、gene行　→　transcript行　→　start_codonあるいはstop_codon行　→　
 #　 →　(この間にinternal, intron, initial, terminalなどがあっても良い)　→　
 #　 →　CDS行　→　stop_codon行あるいはstart_codon行、の順に並んでいることが前提。
-#　start_codonやstop_codon が存在するのに書き込まれていないと不完全な遺伝子扱いになるかもしれないので注意。
+#　start_codonやstop_codon が存在するのに書き込まれていないと不完全な遺伝子扱いになるので注意。
 
     for gffline in range(gffcount):
         currentline = linecache.getline(f3_gff, gffline+1)
@@ -100,8 +114,10 @@ for contig in sequence:
             if gffcontent[2] == "location":
                 featuretype = "gap"
                 transcriptid, locustag = "", ""
-                print("\tgap\t" + gffcontent[3] + ".." + gffcontent[4] + "\testimated_length\tknown")
-            if gffcontent[2] == "rRNA" or gffcontent[2] == "tRNA": #rRNAとtRNAの場合。Augustusではそもそも書き出さないので、マニュアル追加されていることになるだろうか。
+                print("\tassembly_gap\t" + gffcontent[3] + ".." + gffcontent[4] + "\testimated_length\tknown")
+                print("\t\t\tgap_type\tunknown")
+                print("\t\t\tlinkage_evidence\tunspecified")
+            if gffcontent[2] == "rRNA" or gffcontent[2] == "tRNA": #rRNAとtRNAの場合。Augustusではそもそも書き出さないので、元のGFFの記述にlocus_tagが入っていない独立ナンバリングと考えて扱う
                 featuretype = "noncoding"
                 transcriptid, locustag = "", ""
                 if general["locus_tag_renaming"] == "0":
@@ -116,10 +132,10 @@ for contig in sequence:
                 featuretype = "gene"
                 locustag = gffcontent[8]
                 transcriptid = ""
-                transcriptrange, transcriptlength, transcriptnames, transcriptproducts, codonstartlist = [], [], [], [], []
+                transcriptrange, transcriptlength, transcriptnames, transcriptproducts, codonstartlist, transcriptnotes = [], [], [], [], [], []
             if gffcontent[2] == "transcript": #transcriptの開始。機能を確認し、transcript情報を初期化。
                 transcriptid = gffcontent[8]
-                genename, product = "", "hypothetical protein"
+                genename, product, genenote = "", "hypothetical protein", ""
                 for annotline in range(annotcount):
                     currentannot = linecache.getline(f4_func, annotline+1)
                     annotcontent = currentannot.split('\t')
@@ -130,9 +146,13 @@ for contig in sequence:
                         if annotcontent[function_column] != "-" and annotcontent[function_column] != "-\n" and annotcontent[name_column] != "" and annotcontent[name_column] != "\n":
                             annotcontent[function_column] = annotcontent[function_column].replace("\n","")  #対象列が末尾の場合、改行コードが入るのを防ぐ
                             annotcontent[function_column] = annotcontent[function_column].replace("  "," ")  #functional annotationの記述に連続スペースが入っている場合があるので、これも除く
-                            product = annotcontent[function_column]+", putative"
+                            if "involved in" in annotcontent[function_column] or "Belongs to" in annotcontent[function_column]:
+                                genenote = annotcontent[function_column]
+                            else:
+                                product = "putative " + annotcontent[function_column]
                 transcriptnames = transcriptnames + [genename]
                 transcriptproducts = transcriptproducts + [product]
+                transcriptnotes = transcriptnotes + [genenote]
                 transcriptstart, transcriptend = gffcontent[3], gffcontent[4]
                 cdsrange, exonnum, exonlength, codonstart = "", 0, 0, 1
                 startpos, endpos, startjoint, endjoint  = "nt", "nt", "", ""
@@ -171,6 +191,8 @@ for contig in sequence:
                 if transcriptnames[maxtranscript] != "":
                     print("\t\t\tgene\t"+transcriptnames[maxtranscript])
                 print("\t\t\tproduct\t"+transcriptproducts[maxtranscript])
+                if transcriptnotes[maxtranscript] != "":
+                    print("\t\t\tnote\t" + transcriptnotes[maxtranscript])
                 print("\t\t\ttransl_table\t" + general["transl_table"])
                 print("\t\t\tcodon_start\t"+str(codonstartlist[maxtranscript]))
 

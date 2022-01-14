@@ -16,4 +16,4 @@ cat DDBJfiletemp/gaps.gtf DDBJfiletemp/annot_simple.gff > DDBJfiletemp/annot_pre
 
 #main scripts
 python3 DDBJconverter_eukaryote.py $1 DDBJfiletemp/renamedseq.tab DDBJfiletemp/annot_pre.gff $4 > DDBJannotfile.txt
-python3 outputDDBJseqfile.py DDBJfiletemp/renamedseq.tab > DDBJseqfile.txt
+python3 outputDDBJseqfile.py $1 DDBJfiletemp/renamedseq.tab > DDBJseqfile.txt
