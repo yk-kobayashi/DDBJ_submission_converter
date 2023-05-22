@@ -27,6 +27,8 @@ status		論文状況	Unpublished
 hold_date		データ公開予定日	20240401
 species_name		生物種名	Trypoxylus dichotomus 
 strain_or_isolate		系統(strain)あるいはサンプル(isolate)名。(strainあるいはisolate)=(系統・サンプル名)の形で記述	strain=AT787
+collection_date		採集日。年-月-日	2003
+geo_loc		サンプル採集地(国名)	Japan
 transl_table		使用するコドン表。種によって違うので注意。	5
 assembly_method		アセンブリに使用したソフト名とバージョン	Supernova v. 2.1.0
 assembly_name		アセンブリの名前。	LsAT787v3

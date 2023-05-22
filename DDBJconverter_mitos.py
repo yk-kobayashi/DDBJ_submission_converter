@@ -1,4 +1,4 @@
-# DDBJに登録するためのアノテーションファイル作成スクリプト(ミトコンドリア版、MITOSベースのGFFを想定) version 1.10 (2022.1.14)
+# DDBJに登録するためのアノテーションファイル作成スクリプト(ミトコンドリア版、MITOSベースのGFFを想定) version 2.0 (2023.4.14)
 # 入力ファイルとして、
 # 1.著者や論文、生物種などの情報を記述したtsvファイル(Excelフォームに入力してtsv変換する)
 # 2.ゲノムのfastaファイルをtab形式に変換したもの(元のfastaファイルにseqkit fx2tabを使用すれば良い)
@@ -81,6 +81,8 @@ for contig in sequence:
     seqcontent = contig.split()
     print(seqcontent[0] + "\tsource\t1.." + str(len(seqcontent[1])) + "\torganism\t" + speciesname)
     print("\t\t\t" + strain[0] + "\t" + strain[1])
+    print("\t\t\tcountry\t" + general["geo_loc"])
+    print("\t\t\tcollection_date\t" + general["collection_date"])
     print("\t\t\torganelle\tmitochondrion")
     print("\t\t\tmol_type\tgenomic DNA")
     if general["circularseq"] == "yes":

@@ -27,6 +27,8 @@ status		論文状況	Unpublished
 hold_date		データ公開予定日	20240401
 species_name		生物種名	Termitomyces intermedius
 strain_or_isolate		系統(strain)あるいはサンプル(isolate)名。(strainあるいはisolate)=(系統・サンプル名)の形で記述	strain=AT787
+collection_date		採集日。年-月-日	2003
+geo_loc		サンプル採集地(国名)	Japan
 dataquality		"ゲノムデータの完成度。""STANDARD_DRAFT""、""HIGH_QUALITY_DRAFT""、""IMPROVED_HIGH_QUALITY_DRAFT""、""NON_CONTIGUOUS_FINISHED""のうち1つを選択"	STANDARD_DRAFT
 assembly_method		アセンブリに使用したソフト名とバージョン	Supernova v. 2.1.0
 assembly_name		アセンブリの名前。	LsAT787v3

@@ -1,8 +1,8 @@
-# DDBJに登録するためのアノテーションファイル作成スクリプト(真核生物版、AugustusベースのGFFを想定) version 1.10 (2022.1.14)
+# DDBJに登録するためのアノテーションファイル作成スクリプト(真核生物版、AugustusベースのGFFを想定) version 2.0 (2023.4.14)
 # 入力ファイルとして、
 # 1.著者や論文、生物種などの情報を記述したtsvファイル(Excelフォームに入力してtsv変換する)
 # 2.ゲノムのfastaファイルをtab形式に変換したもの(元のfastaファイルにseqkit fx2tabを使用すれば良い)
-# 3.アノテーションのGFFファイル(AUGUSTUS出力の結果を想定)
+# 3.アノテーションのGFFファイル(AUGUSTUS出力のgtfファイルを想定)
 #    不要な行が入っているとうまく機能しないので、あらかじめ以下の作業をして必要な要素のみを含む作業用GFFに変換しておく必要がある。
 #    grep -v ^"#" (GFFファイル) | grep -e "\tgene\t" -e "\ttranscript\t" -e "\tstart_codon\t" -e "\tCDS\t" -e "\tstop_codon\t"-e "\ttRNA\t" -e "\trRNA\t" > (使用するファイル)
 # 4.機能アノテーション結果の表ファイル(1列目がtranscript IDと等しいことが必須。記載したいアノテーション情報の入っている列が何列目か、1.のファイルに記載する)
@@ -90,6 +90,8 @@ for contig in sequence:
     seqcontent = contig.split()
     print(contignameprefix + seqcontent[0] + "\tsource\t1.." + str(len(seqcontent[1])) + "\torganism\t" + speciesname)
     print("\t\t\t" + strain[0] + "\t" + strain[1])
+    print("\t\t\tcountry\t" + general["geo_loc"])
+    print("\t\t\tcollection_date\t" + general["collection_date"])
     print("\t\t\tmol_type\tgenomic DNA")
     print("\t\t\tsubmitter_seqid\t@@[entry]@@")
     print("\t\t\tff_definition\t@@[organism]@@ @@[" + strain[0] + "]@@ DNA, @@[submitter_seqid]@@")
@@ -148,26 +150,102 @@ for contig in sequence:
                             annotfunction = annotfunction.replace("  "," ")  #functional annotationの記述に連続スペースが入っている場合があるので、これも除く
                             if annotfunction[0].isupper() and annotfunction[1].islower(): #略語等以外の先頭大文字を小文字に変換する。略号等かどうかは2文字めが英字小文字かどうかで判定
                                 annotfunction = annotfunction[0].lower() + annotfunction[1:]
-                            if "belongs to" in annotfunction: #機能アノテーションの中に分子種の記述以外の説明が混在していた場合の対応。機能アノテーションを実施したツールによって変える必要があるかも
+                            #機能アノテーションが文章だった場合はnoteに、そうでなければproductにする
+                            if (annotfunction.startswith("it ") or annotfunction.startswith("the ") or annotfunction.startswith("this ") or annotfunction.startswith("to ")) == True:
                                 genenote = annotfunction
-                            elif "binding. It is involved in" in annotfunction:
-                                annotdetail = annotfunction.split("binding. ")
-                                if annotdetail[0] != "":
-                                    product = "putative " + annotdetail[0] + "binding protein"
-                                genenote = annotdetail[1]
-                            elif "activity. It is involved in" in annotfunction:
-                                annotdetail = annotfunction.split("activity. ")
-                                if annotdetail[0] != "":
-                                    product = "putative " + annotdetail[0]
-                                genenote = annotdetail[1]
-                            elif ". " in annotfunction:
-                                annotdetail = annotfunction.split(". ")
-                                product = "putative " + annotdetail[0]
-                                genenote = annotdetail[1]
-                            elif "involved in" in annotfunction:
+                            elif ("functions " in annotfunction) or ("acts " in annotfunction) or ("plays " in annotfunction) or ("catalyzes " in annotfunction) or ("hydrolyzes " in annotfunction) or ("demethylases " in annotfunction) or ("promotes " in annotfunction) or ("splits " in annotfunction) or ("adds " in annotfunction) or ("has " in annotfunction) or ("assists " in annotfunction) or ("mediates " in annotfunction) or ("cleaves " in annotfunction) or ("produces " in annotfunction) or ("stimulates " in annotfunction) or ("allows " in annotfunction) or ("occurs " in annotfunction) or ("shuttles " in annotfunction) or ("cooperates " in annotfunction) or ("methylates " in annotfunction) or ("condensation" in annotfunction) or ("constitutes " in annotfunction) or ("may " in annotfunction) or ("might " in annotfunction) or ("seems to " in annotfunction) or ("binds to " in annotfunction) or ("present " in annotfunction) or ("control of " in annotfunction) or ("regulation " in annotfunction) or ("probably " in annotfunction) or ("annotation" in annotfunction):
                                 genenote = annotfunction
+                            elif annotfunction.startswith("putative ") == True:
+                                product = annotfunction
                             else:
                                 product = "putative " + annotfunction
+                            #機能アノテーションが説明を含んでいる場合、説明部分はnoteに移す
+                            if "It is " in product:
+                                productdetail = product.split("It is ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            if "that is " in product:
+                                productdetail = product.split("that is ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            if "which is " in product:
+                                productdetail = product.split("which is ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            if "predicted to be " in product:
+                                productdetail = product.split("predicted to be ")
+                                product = productdetail[0]
+                                genenote = "predicted to be " + productdetail[1] + ". " + genenote
+                            if "belongs to " in product:
+                                productdetail = product.split("belongs to ")
+                                product = productdetail[0]
+                                genenote = "belongs to " + productdetail[1] + ". " + genenote
+                            if "functions in " in product:
+                                productdetail = product.split("functions in ")
+                                product = productdetail[0]
+                                genenote = "functions in " + productdetail[1] + ". " + genenote
+                            if "involved in " in product:
+                                productdetail = product.split("involved in ")
+                                product = productdetail[0]
+                                genenote = "involved in " + productdetail[1] + ". " + genenote
+                            if "required for " in product:
+                                productdetail = product.split("required for ")
+                                product = productdetail[0]
+                                genenote = "required for " + productdetail[1] + ". " + genenote
+                            if "participates in " in product:
+                                productdetail = product.split("participates in ")
+                                product = productdetail[0]
+                                genenote = "participates in " + productdetail[1] + ". " + genenote
+                            if "implicated in " in product:
+                                productdetail = product.split("implicated in ")
+                                product = productdetail[0]
+                                genenote = "implicated in " + productdetail[1] + ". " + genenote
+                            if " which " in product:
+                                productdetail = product.split(" which ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            if " that " in product:
+                                productdetail = product.split(" that ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            if ". " in product:
+                                productdetail = product.split(". ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            if (", " in product) and (", and " not in product):
+                                productdetail = product.split(", ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            if " are " in product:
+                                productdetail = product.split(" are ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            if " is " in product:
+                                productdetail = product.split(" is ")
+                                product = productdetail[0]
+                                genenote = productdetail[1] + ". " + genenote
+                            #product末尾の調整。文末の句読点の除去、ドメイン・モチーフやファミリーのタンパク質productとしての適正化
+                            if product.endswith(" ") == True:
+                                product = product.rstrip()
+                            if product.endswith(".") == True:
+                                product = product.rstrip(".")
+                            if product.endswith(",") == True:
+                                product = product.rstrip(",")
+                            if product.endswith("activity") == True:
+                                product = product.rstrip("activity")
+                            if (product.endswith("proteins") == True) or (product.endswith("homologues") == True):
+                                product = product.rstrip("s")
+                            if (product.endswith("domain") == True) or (product.endswith("domains") == True) or (product.startswith("putative domain") == True) or ("domain of unknown function" in product):
+                                product = product + " containing protein"
+                            if (product.endswith("motif") == True) or (product.endswith("motifs") == True):
+                                product = product + " containing protein"
+                            if (product.endswith("repeat") == True) or (product.endswith("repeats") == True):
+                                product = product + " containing protein"
+                            if (product.endswith("family") == True) or (product.endswith("like") == True) or (product.endswith("binding") == True) or (product.endswith("finger") == True) or (product.endswith("zipper") == True) or (product.endswith("nuckle") == True) or (product.endswith("membrane") == True) or (product.endswith("carrier") == True):
+                                product = product + " protein"
+                            #説明をnoteに移した結果として内容がなくなったproductはhypothetical proteinに戻す
+                            if product == "putative":
+                                product = "hypothetical protein"
                 transcriptnames = transcriptnames + [genename]
                 transcriptproducts = transcriptproducts + [product]
                 transcriptnotes = transcriptnotes + [genenote]

@@ -8,7 +8,8 @@ Scripts to convert genome and annotation data into DDBJ submission files
 ・遺伝子領域のアノテーションされたgffファイル  
 ・遺伝子機能をアノテーションしたcsvファイル(EggNOG mapperの結果のtableなど。ミトコンドリアゲノムの場合は不要)  
 と、基本情報をExcelで記入したtsvファイルを使用し、  
-DDBJの登録に必要な配列ファイルとアノテーションファイルを出力します。
+DDBJの登録に必要なアノテーションファイルを出力します。
+2022年度下半期あたりから配列ファイルがfastaで良くなったので、以前のDDBJ登録用配列ファイルは出力しなくなりました。(ver.2.0〜)
 
 遺伝子アノテーションは  
 ・真核生物はAugustus系列(BRAKERもAugustus依存)  
@@ -21,28 +22,29 @@ DDBJの登録に必要な配列ファイルとアノテーションファイル�
 ・seqkit  
 
 ○使用法  
-(1) general_templateのtsvファイル(本体ゲノム用orミトコンドリア用)を編集し、登録者や生物種、解析手法などの情報を記入  
-　※編集はExcelで良い。余剰の著者名を除いて全項目必須フィールドなので、2列目を全部埋めないとエラーで止まります
+1. 任意の場所にファイル一式をコピー
+　(ver.2.0から作業フォルダ以外の場所でも動作するようにしました。~/local/でも/usr/local/でも、お好きなところにgit cloneしてください)
 
-(2) シェルスクリプトを起動  
+2. general_templateのtsvファイル(本体ゲノム用orミトコンドリア用)を編集し、登録者や生物種、解析手法などの情報を記入  
+　(編集はExcelでOKです。余剰著者名以外は全項目必須フィールドなので、余剰著者名欄以外の2列目を全部埋めないとエラーで止まります)
+
+3. シェルスクリプトを起動  
 　　2-a) 真核生物ゲノムの場合、  
-　　./runDDBJconvert_eukaryote.sh  <(1)の基本情報ファイル> <塩基配列.fasta> <gffファイル(Augustus準拠)> <機能アノテーション.csv>
+　　./runDDBJconvert_eukaryote.sh  <(1)の基本情報ファイル> <塩基配列.fasta> <gffファイル(Augustus準拠)> <機能アノテーション.csv> <出力する名前>
 
 　　2-b) 原核生物ゲノムの場合、  
-　　./runDDBJconvert_prokaryote.sh  <(1)の基本情報ファイル> <塩基配列.fasta> <gffファイル(Prokka準拠)> <機能アノテーション.csv>
+　　./runDDBJconvert_prokaryote.sh  <(1)の基本情報ファイル> <塩基配列.fasta> <gffファイル(Prokka準拠)> <機能アノテーション.csv> <出力する名前>
 
 　　2-c) ミトコンドリアゲノムの場合、  
-　　./runDDBJconvert_mitos.sh  <(1)の基本情報ファイル> <塩基配列.fasta> <gffファイル(MITOS準拠)>
+　　./runDDBJconvert_mitos.sh  <(1)の基本情報ファイル> <塩基配列.fasta> <gffファイル(MITOS準拠)> <出力する名前>
 
-(3) 出力結果  
-　DDBJに登録する際の配列ファイル(元のゲノムのfastaファイルのエントリ間に//の文字を挟んだだけのもの)が  
-　　DDBJseqfile.txt  
-　アノテーションファイル(形式の独特な登録用ファイル)が  
-　　DDBJannotfile.txt  
+4. 出力結果  
+　登録用のアノテーションファイルが  
+　　<出力する名前>.ann.txt  
 　というファイル名で出力されます。
 
-最初に起動したシェルスクリプトが作業用の中途ファイルをDDBJfiletempというフォルダ内に作成し、これを使ってpythonスクリプトを走らせる流れです。  
-最終的なDDBJannotfile.txtとDDBJseqfile.txtがうまく生成されていれば、DDBJfiletempのフォルダは削除してしまって大丈夫です。  
+最初に起動したシェルスクリプトが作業用の中途ファイルを<出力する名前>_DDBJfiletempというフォルダ内に作成し、これを使ってpythonスクリプトを走らせる流れです。  
+最終的な.ann.txtファイルがうまく生成されていれば、DDBJfiletempのフォルダは削除してしまって大丈夫です。  
 
 ※注  
 作成時の実行環境ではUME/jParserでエラーの出ないアノテーションファイルを作成できていましたが、登録前には自身のファイルをUME/jParserでチェックしておく必要があります。  
